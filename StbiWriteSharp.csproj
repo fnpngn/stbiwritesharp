@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+	<Target Name="BuildNativeLib" BeforeTargets="Build">
+		<Message Text="Building native library with CMake..." Importance="high" />
+
+		<MakeDir Directories="$(ProjectDir)lib\build" />
+
+		<Exec Command="cmake -B &quot;$(ProjectDir)lib\build&quot; -S &quot;$(ProjectDir)lib&quot;" Condition="!Exists('$(ProjectDir)lib\build\CMakeCache.txt')" />
+
+		<Exec Command="cmake --build &quot;$(ProjectDir)lib\build&quot; --config Release" />
+
+		<ItemGroup>
+			<NativeLibs Include="$(ProjectDir)lib\build\*.dll" />
+			<NativeLibs Include="$(ProjectDir)lib\build\*.so" />
+			<NativeLibs Include="$(ProjectDir)lib\build\*.so.*" />
+			<NativeLibs Include="$(ProjectDir)lib\build\*.dylib" />
+		</ItemGroup>
+		<Copy SourceFiles="@(NativeLibs)" DestinationFolder="$(OutputPath)runtimes\%(RecursiveDir)" SkipUnchangedFiles="true" />
+	</Target>
+
+	<!-- WARN: Currently requires a second build action call to copy the native files to the tests project because VS refuses to include items if they didn't exist before the build-->
+	<ItemGroup>
+		<Content Include="lib\build\*.dll;lib\build\*.so;lib\build\*.so.*;lib\build\*.dylib">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<TargetPath>runtimes\%(RecursiveDir)%(Filename)%(Extension)</TargetPath>
+		</Content>
+	</ItemGroup>
+
+	<Target Name="CleanNativeLib" AfterTargets="Clean">
+		<Message Text="Cleaning native build..." Importance="high" />
+		<RemoveDir Directories="$(ProjectDir)lib\build" />
+	</Target>
+
+</Project>
