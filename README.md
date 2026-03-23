@@ -1,0 +1,1 @@
+Bindings for stb_image_write in C#. This is not a port. 
