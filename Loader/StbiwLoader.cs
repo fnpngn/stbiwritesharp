@@ -3,7 +3,7 @@ using static StbiwSharp.Loader.StbiwLoaderConfiguration;
 
 namespace StbiwSharp.Loader
 {
-    public class StbiwLoader
+    internal class StbiwLoader
     {
         /// <summary>
         /// Method that should be called in static ctor of every dllimport class
